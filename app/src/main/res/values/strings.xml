@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">applepulser_android</string>
     <string name="backward">backward</string>
+    <string name="join_by">Join by</string>
+    <string name="code">Code</string>
+    <string name="qr">QR</string>
 </resources>
