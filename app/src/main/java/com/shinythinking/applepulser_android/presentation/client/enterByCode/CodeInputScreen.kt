@@ -33,7 +33,7 @@ fun CodeInputScreen(
         ) {
             Text(
                 text = "Enter Code",
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(28.dp))
             APTextField(

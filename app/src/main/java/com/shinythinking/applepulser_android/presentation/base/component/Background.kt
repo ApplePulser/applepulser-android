@@ -60,7 +60,7 @@ fun Background(
                         .align(Alignment.TopStart)
                         .padding(24.dp)
                         .size(48.dp),
-                    tint = MaterialTheme.colorScheme.secondary
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
             if (appleExist) {

@@ -43,7 +43,7 @@ fun EnterRoomScreen(
                 Text(
                     text = stringResource(R.string.join_by),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
