@@ -10,14 +10,36 @@ import com.shinythinking.applepulser_android.R
 
 val inter = FontFamily(
     Font(R.font.inter_regular, FontWeight.Normal),
-    Font(R.font.inter_bold, FontWeight.Bold)
+    Font(R.font.inter_bold, FontWeight.Bold),
+    Font(R.font.inter_thin, FontWeight.Thin)
 )
 
-// Set of Material typography styles to start with
 val Typography = Typography(
+    titleLarge = TextStyle(
+        fontFamily = inter,
+        fontWeight = FontWeight.Normal,
+        fontSize = 40.sp,
+        lineHeight = 48.sp
+
+    ),
+    titleMedium = TextStyle(
+        fontFamily = inter,
+        fontWeight = FontWeight.Normal,
+        fontSize = 32.sp,
+        lineHeight = 28.sp
+
+    ),
+    titleSmall = TextStyle(
+        fontFamily = inter,
+        fontWeight = FontWeight.Thin,
+        fontSize = 32.sp,
+        lineHeight = 28.sp
+
+    ),
+
     bodyLarge = TextStyle(
         fontFamily = inter,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Normal,
         fontSize = 40.sp,
         lineHeight = 48.sp,
         letterSpacing = 0.5.sp
@@ -28,6 +50,11 @@ val Typography = Typography(
         fontSize = 32.sp,
         lineHeight = 36.sp,
 
+        ),
+    bodySmall = TextStyle(
+        fontFamily = inter,
+        fontWeight = FontWeight.Normal,
+        fontSize = 24.sp,
+        lineHeight = 28.sp,
     )
-
 )

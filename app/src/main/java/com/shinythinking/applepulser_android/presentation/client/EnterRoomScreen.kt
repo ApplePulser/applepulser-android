@@ -42,7 +42,7 @@ fun EnterRoomScreen(
             ) {
                 Text(
                     text = stringResource(R.string.join_by),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
             }

@@ -30,7 +30,7 @@ fun APLongButton(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
@@ -48,7 +48,7 @@ fun APShortButton(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
