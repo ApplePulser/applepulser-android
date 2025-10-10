@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">applepulser_android</string>
+    <string name="backward">backward</string>
 </resources>
