@@ -7,10 +7,12 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val DarkColorScheme = darkColorScheme(
-    primary = ButtonGrey,
+    primary = TransparentDarkBrown,
     onPrimary = White,
-    secondary = White,
-    onSecondary = Black,
+//    primaryContainer = ,
+//    onPrimaryContainer = White,
+    secondary = TransparentLightGrey,
+    onSecondary = White,
     tertiary = Pink80,
     onBackground = White
 )
