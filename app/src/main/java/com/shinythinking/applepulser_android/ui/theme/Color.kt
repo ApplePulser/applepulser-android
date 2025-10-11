@@ -12,4 +12,5 @@ val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 
 val TransparentDarkBrown = Color(0xB33A130D)
+val TransparentLightBrown = Color(0xB3875E57)
 val TransparentLightGrey = Color(0x40D9D9D9)

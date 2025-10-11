@@ -49,7 +49,7 @@ fun APLabel(
                 text = text,
                 modifier = Modifier.padding(horizontal = 24.dp),
                 color = MaterialTheme.colorScheme.onSecondary,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelLarge,
                 textAlign = TextAlign.Start
             )
         }
