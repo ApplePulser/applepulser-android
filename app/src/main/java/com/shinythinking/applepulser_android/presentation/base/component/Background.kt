@@ -3,6 +3,7 @@ package com.shinythinking.applepulser_android.presentation.base.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,7 +28,11 @@ fun Background(
     modifier: Modifier = Modifier,
     appleExist: Boolean = false,
     backExist: Boolean = false,
-    content: @Composable (modifier: Modifier) -> Unit
+    buttonExist: Boolean = false,
+    buttonText: String = "",
+    isClicked: Boolean = false,
+    onButtonClick: () -> Unit = {},
+    content: @Composable (PaddingValues) -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Box(
@@ -66,7 +71,7 @@ fun Background(
             if (appleExist) {
                 Image(
                     painter = painterResource(R.drawable.ic_bg_big_apple),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.background_image),
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomEnd),
@@ -74,7 +79,22 @@ fun Background(
                 )
             }
         }
-        content(modifier)
+        content(
+            PaddingValues(
+                bottom = if (buttonExist) 200.dp else 24.dp
+            )
+        )
+
+        if (buttonExist) {
+            APShortButton(
+                onClick = onButtonClick,
+                text = buttonText,
+                isClicked = isClicked,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 100.dp, top = 32.dp)
+            )
+        }
     }
 }
 
@@ -86,6 +106,8 @@ fun BaseScreenPreview() {
             modifier = Modifier,
             backExist = true,
             appleExist = true,
+            buttonExist = true,
+            buttonText = "Preview"
         ) {}
     }
 }
