@@ -127,7 +127,7 @@ fun APBigButton(
 @Composable
 fun ButtonsPreview() {
     ApplepulserTheme {
-        Background {
+        APBackground {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,

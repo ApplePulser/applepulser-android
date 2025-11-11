@@ -24,7 +24,7 @@ import com.shinythinking.applepulser_android.R
 import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
-fun Background(
+fun APBackground(
     modifier: Modifier = Modifier,
     appleExist: Boolean = false,
     backExist: Boolean = false,
@@ -81,7 +81,10 @@ fun Background(
         }
         content(
             PaddingValues(
-                bottom = if (buttonExist) 200.dp else 24.dp
+                start = 36.dp,
+                end = 36.dp,
+                top = 80.dp,
+                bottom = if (buttonExist) 200.dp else 24.dp,
             )
         )
 
@@ -102,7 +105,7 @@ fun Background(
 @Composable
 fun BaseScreenPreview() {
     ApplepulserTheme {
-        Background(
+        APBackground(
             modifier = Modifier,
             backExist = true,
             appleExist = true,

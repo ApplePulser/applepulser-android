@@ -13,15 +13,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.shinythinking.applepulser_android.presentation.base.component.APBackground
 import com.shinythinking.applepulser_android.presentation.base.component.APTextField
-import com.shinythinking.applepulser_android.presentation.base.component.Background
 import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
 fun CodeInputScreen(
     modifier: Modifier = Modifier,
 ) {
-    Background(
+    APBackground(
         modifier = modifier,
         appleExist = true,
         backExist = true,

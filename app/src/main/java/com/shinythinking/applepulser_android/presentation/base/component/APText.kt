@@ -66,7 +66,7 @@ fun TextWithSideBar(
 @Composable
 fun TextWithSideBarPreview() {
     ApplepulserTheme {
-        Background(
+        APBackground(
             modifier = Modifier.fillMaxSize()
         )
         {

@@ -60,7 +60,7 @@ fun APLabel(
 @Composable
 fun APLabelPreview() {
     ApplepulserTheme {
-        Background() {
+        APBackground() {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,

@@ -17,15 +17,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shinythinking.applepulser_android.R
+import com.shinythinking.applepulser_android.presentation.base.component.APBackground
 import com.shinythinking.applepulser_android.presentation.base.component.APLongButton
-import com.shinythinking.applepulser_android.presentation.base.component.Background
 import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
 fun EnterRoomScreen(
     modifier: Modifier = Modifier,
 ) {
-    Background(
+    APBackground(
         appleExist = true,
         backExist = true,
     ) {
