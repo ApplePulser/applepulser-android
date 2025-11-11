@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shinythinking.applepulser_android.R
-import com.shinythinking.applepulser_android.ui.theme.Applepulser_androidTheme
+import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
 fun Background(
@@ -101,7 +101,7 @@ fun Background(
 @Preview
 @Composable
 fun BaseScreenPreview() {
-    Applepulser_androidTheme {
+    ApplepulserTheme {
         Background(
             modifier = Modifier,
             backExist = true,

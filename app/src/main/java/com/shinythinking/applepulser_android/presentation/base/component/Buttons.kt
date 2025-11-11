@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.shinythinking.applepulser_android.ui.theme.Applepulser_androidTheme
+import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
 fun APLongButton(
@@ -71,7 +71,7 @@ fun APShortButton(
 @Preview
 @Composable
 fun ButtonsPreview() {
-    Applepulser_androidTheme {
+    ApplepulserTheme {
         Background {
             Column(
                 modifier = Modifier.fillMaxSize(),

@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.shinythinking.applepulser_android.R
 import com.shinythinking.applepulser_android.presentation.base.component.APLabel
 import com.shinythinking.applepulser_android.presentation.base.component.Background
-import com.shinythinking.applepulser_android.ui.theme.Applepulser_androidTheme
+import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
 fun ClientRoomScreen(modifier: Modifier = Modifier) {
@@ -70,7 +70,7 @@ fun ClientRoomScreen(modifier: Modifier = Modifier) {
 @Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
 fun ClientRoomScreenPreview() {
-    Applepulser_androidTheme {
+    ApplepulserTheme {
         ClientRoomScreen()
     }
 }

@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shinythinking.applepulser_android.presentation.base.component.APTextField
 import com.shinythinking.applepulser_android.presentation.base.component.Background
-import com.shinythinking.applepulser_android.ui.theme.Applepulser_androidTheme
+import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
 fun CodeInputScreen(
@@ -48,7 +48,7 @@ fun CodeInputScreen(
 @Preview
 @Composable
 fun CodeInputScreenPreview() {
-    Applepulser_androidTheme {
+    ApplepulserTheme {
         CodeInputScreen()
     }
 }

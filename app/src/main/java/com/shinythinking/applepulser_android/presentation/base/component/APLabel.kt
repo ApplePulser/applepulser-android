@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.shinythinking.applepulser_android.ui.theme.Applepulser_androidTheme
+import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
 fun APLabel(
@@ -59,7 +59,7 @@ fun APLabel(
 @Preview
 @Composable
 fun APLabelPreview() {
-    Applepulser_androidTheme {
+    ApplepulserTheme {
         Background() {
             Column(
                 modifier = Modifier.fillMaxSize(),

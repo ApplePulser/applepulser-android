@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.shinythinking.applepulser_android.R
 import com.shinythinking.applepulser_android.presentation.base.component.APLongButton
 import com.shinythinking.applepulser_android.presentation.base.component.Background
-import com.shinythinking.applepulser_android.ui.theme.Applepulser_androidTheme
+import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 
 @Composable
 fun EnterRoomScreen(
@@ -64,7 +64,7 @@ fun EnterRoomScreen(
 @Preview
 @Composable
 fun EnterRoomScreenPreview() {
-    Applepulser_androidTheme {
+    ApplepulserTheme {
         EnterRoomScreen()
     }
 }
