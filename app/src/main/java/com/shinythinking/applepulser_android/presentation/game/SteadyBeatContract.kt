@@ -3,7 +3,7 @@ package com.shinythinking.applepulser_android.presentation.game
 import com.shinythinking.applepulser_android.domain.model.GameStatus
 import com.shinythinking.applepulser_android.domain.model.Player
 
-object GamePlayContract {
+object SteadyBeatContract {
 
     sealed interface State {
         object Connecting : State
