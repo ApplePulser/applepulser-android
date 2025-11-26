@@ -71,3 +71,29 @@ data class LeaveRoomRequest(
 data class LeaveRoomResponse(
     @SerialName("message") val message: String,
 )
+
+@Serializable
+data class StartGameRequest(
+    @SerialName("player_id") val playerId: String,
+    @SerialName("mode") val mode: String,
+    @SerialName("time_limit") val timeLimit: Int,
+    @SerialName("bpm_min") val bpmMin: Int,
+    @SerialName("bpm_max") val bpmMax: Int
+)
+
+@Serializable
+data class StartGameResponse(
+    @SerialName("message") val message: String,
+    @SerialName("room_id") val roomId: String,
+    @SerialName("status") val status: String,
+    @SerialName("game_settings") val gameSettings: GameSettingDto,
+    @SerialName("started_at") val startedAt: String
+)
+
+@Serializable
+data class GameSettingDto(
+    @SerialName("mode") val mode: String,
+    @SerialName("time_limit") val timeLimit: Int,
+    @SerialName("bpm_min") val bpmMin: Int,
+    @SerialName("bpm_max") val bpmMax: Int
+)
