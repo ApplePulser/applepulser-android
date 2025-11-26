@@ -3,12 +3,21 @@ package com.shinythinking.applepulser_android.domain.model
 data class Player(
     val id: String,
     val name: String,
-    val heartRate: Int = 0,
-    val rank: Int = 0,
-    val colorType: PlayerType = PlayerType.RED,
+    val status: PlayerStatus = PlayerStatus.WAITING,
     val isHost: Boolean = false,
-    val isReady: Boolean = false
+    val colorType: PlayerType = PlayerType.entries.random(),
+
+    val bpm: Int? = null,
+    val deviation: Int? = null,
+    val rank: Int? = null,
 )
+
+enum class PlayerStatus {
+    WAITING,
+    READY,
+    PLAYING,
+    FINISHED
+}
 
 enum class PlayerType {
     RED,

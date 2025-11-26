@@ -6,8 +6,8 @@ enum class GameMode {
 
     val title: String
         get() = when (this) {
-            STEADY_BEAT -> "Steady Beat"
-            PULSE_RUSH -> "Pulse Rush"
+            STEADY_BEAT -> "steady_beat"
+            PULSE_RUSH -> "pulse_rush"
         }
 
     val description: String
