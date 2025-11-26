@@ -1,12 +1,12 @@
 package com.shinythinking.applepulser_android.domain.model
 
 data class RoomInfo(
+    val roomId: String,
     val roomCode: String,
-    val hostId: String,
-    val players: List<Player> = emptyList(),
-    val gameMode: GameMode? = null,
+    val qrCode: String? = null,
+    val status: RoomStatus,
     val maxPlayers: Int = 4,
-    val isGameStarted: Boolean = false
+    val players: List<Player> = emptyList(),
 ) {
     val currentPlayerCount: Int
         get() = players.size
@@ -14,6 +14,8 @@ data class RoomInfo(
     val isFull: Boolean
         get() = players.size >= maxPlayers
 
-    val canStart: Boolean
-        get() = players.size >= 2 && gameMode != null && players.all { it.isReady }
+}
+
+enum class RoomStatus {
+    WAITING, PLAYING, FINISHED
 }
