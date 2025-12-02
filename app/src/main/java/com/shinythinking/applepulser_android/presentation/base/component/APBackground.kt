@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,6 +32,7 @@ fun APBackground(
     buttonExist: Boolean = false,
     buttonText: String = "",
     isClicked: Boolean = false,
+    onBackButtonClicked: () -> Unit = {},
     onButtonClick: () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -58,15 +60,19 @@ fun APBackground(
                 )
         ) {
             if (backExist) {
-                Icon(
-                    painterResource(R.drawable.ic_backward),
-                    contentDescription = stringResource(R.string.backward),
+                IconButton(
+                    onClick = onBackButtonClicked,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(24.dp)
                         .size(48.dp),
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_backward),
+                        contentDescription = stringResource(R.string.backward),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
             if (appleExist) {
                 Image(

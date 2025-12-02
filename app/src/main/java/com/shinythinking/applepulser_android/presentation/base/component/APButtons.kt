@@ -49,30 +49,33 @@ fun APShortButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     isClicked: Boolean = false,
 ) {
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth(0.55f),
-        contentPadding = PaddingValues(vertical = 20.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isClicked) {
-                MaterialTheme.colorScheme.tertiary
-            } else {
-                MaterialTheme.colorScheme.primary
-            },
-            contentColor = if (isClicked) {
-                MaterialTheme.colorScheme.onTertiary
-            } else {
-                MaterialTheme.colorScheme.onPrimary
-            },
-        ),
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge
-        )
+    if (enabled) {
+        Button(
+            onClick = onClick,
+            modifier = modifier
+                .fillMaxWidth(0.55f),
+            contentPadding = PaddingValues(vertical = 20.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isClicked) {
+                    MaterialTheme.colorScheme.tertiary
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
+                contentColor = if (isClicked) {
+                    MaterialTheme.colorScheme.onTertiary
+                } else {
+                    MaterialTheme.colorScheme.onPrimary
+                },
+            ),
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
     }
 }
 
