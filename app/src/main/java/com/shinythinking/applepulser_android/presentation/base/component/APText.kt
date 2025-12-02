@@ -25,7 +25,8 @@ import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 fun TextWithSideBar(
     title: String,
     description: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onlyTitle: Boolean = false,
 ) {
     Row(
         modifier = modifier
@@ -52,12 +53,14 @@ fun TextWithSideBar(
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = description,
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.bodySmall
-            )
+            if (!onlyTitle) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = description,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }
