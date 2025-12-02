@@ -1,18 +1,27 @@
 package com.shinythinking.applepulser_android.di
 
+import android.content.Context
 import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.shinythinking.applepulser_android.data.api.ApiDataSource
+import com.shinythinking.applepulser_android.data.local.datastore.UserSessionLocalDataSource
+import com.shinythinking.applepulser_android.data.local.datastore.UserSessionLocalDataSourceImpl
 import com.shinythinking.applepulser_android.data.network.SocketDataSource
 import com.shinythinking.applepulser_android.data.repository.BluetoothRepositoryImpl
 import com.shinythinking.applepulser_android.data.repository.GameRepositoryImpl
 import com.shinythinking.applepulser_android.data.repository.RoomRepositoryImpl
+import com.shinythinking.applepulser_android.data.repository.UserSessionRepositoryImpl
 import com.shinythinking.applepulser_android.domain.repository.BluetoothRepository
 import com.shinythinking.applepulser_android.domain.repository.GameRepository
 import com.shinythinking.applepulser_android.domain.repository.RoomRepository
+import com.shinythinking.applepulser_android.domain.repository.UserSessionRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
@@ -126,5 +135,38 @@ object DataModule {
         socketDataSource: SocketDataSource
     ): GameRepository {
         return GameRepositoryImpl(socketDataSource)
+    }
+
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+        name = "heart_sync_preferences"
+    )
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object DataStoreModule {
+        @Provides
+        @Singleton
+        fun provideDataStore(
+            @ApplicationContext context: Context
+        ): DataStore<Preferences> {
+            return context.dataStore
+        }
+    }
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    abstract class DataStoreBindModule {
+
+        @Binds
+        @Singleton
+        abstract fun bindUserSessionLocalDataSource(
+            impl: UserSessionLocalDataSourceImpl
+        ): UserSessionLocalDataSource
+
+        @Binds
+        @Singleton
+        abstract fun bindUserSessionRepository(
+            impl: UserSessionRepositoryImpl
+        ): UserSessionRepository
     }
 }
