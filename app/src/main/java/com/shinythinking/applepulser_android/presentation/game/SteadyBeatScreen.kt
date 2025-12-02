@@ -60,6 +60,7 @@ import com.shinythinking.applepulser_android.R
 import com.shinythinking.applepulser_android.domain.model.GameStatus
 import com.shinythinking.applepulser_android.domain.model.Limit
 import com.shinythinking.applepulser_android.domain.model.Player
+import com.shinythinking.applepulser_android.domain.model.PlayerStatus
 import com.shinythinking.applepulser_android.domain.model.PlayerType
 import com.shinythinking.applepulser_android.presentation.base.component.APBackground
 import com.shinythinking.applepulser_android.presentation.base.component.APShortButton
@@ -375,7 +376,7 @@ private fun PlayerTrack(
     modifier: Modifier = Modifier
 ) {
     val totalDif = limit.max - limit.min
-    val playerDif = player.heartRate - limit.min
+    val playerDif = (player.bpm ?: 120) - limit.min
     val playerPercentage = when (playerDif.toFloat() / totalDif.toFloat()) {
         in 0.01f..0.99f -> playerDif.toFloat() / totalDif.toFloat()
         in 0.99f..Float.MAX_VALUE -> 0.99f
@@ -540,10 +541,38 @@ fun SteadyBeatPlayingPreview() {
             elapsedTime = 120,
             totalTime = 300,
             players = listOf(
-                Player("1", "신바다", 145, 1, PlayerType.RED),
-                Player("2", "한예준", 135, 2, PlayerType.WHITE),
-                Player("3", "홍사인", 150, 3, PlayerType.YELLOW),
-                Player("4", "김나경", 130, 4, PlayerType.GREEN)
+                Player(
+                    id = "1",
+                    name = "홍사인",
+                    status = PlayerStatus.PLAYING,
+                    isHost = true,
+                    colorType = PlayerType.YELLOW,
+                    bpm = 145
+                ),
+                Player(
+                    id = "2",
+                    name = "한예준",
+                    status = PlayerStatus.PLAYING,
+                    isHost = true,
+                    colorType = PlayerType.RED,
+                    bpm = 160
+                ),
+                Player(
+                    id = "3",
+                    name = "신바다",
+                    status = PlayerStatus.PLAYING,
+                    isHost = true,
+                    colorType = PlayerType.WHITE,
+                    bpm = 130
+                ),
+                Player(
+                    id = "4",
+                    name = "김나경",
+                    status = PlayerStatus.PLAYING,
+                    isHost = true,
+                    colorType = PlayerType.GREEN,
+                    bpm = 120
+                ),
             ),
             limit = Limit(120, 160)
         )
@@ -567,8 +596,22 @@ fun SteadyBeatPausedPreview() {
             elapsedTime = 120,
             totalTime = 300,
             players = listOf(
-                Player("1", "신바다", 140, 1, PlayerType.RED),
-                Player("2", "한예준", 135, 2, PlayerType.WHITE)
+                Player(
+                    id = "1",
+                    name = "홍사인",
+                    status = PlayerStatus.PLAYING,
+                    isHost = true,
+                    colorType = PlayerType.YELLOW,
+                    bpm = 145
+                ),
+                Player(
+                    id = "2",
+                    name = "한예준",
+                    status = PlayerStatus.PLAYING,
+                    isHost = true,
+                    colorType = PlayerType.RED,
+                    bpm = 120
+                ),
             ),
             limit = Limit(120, 140)
         ),
