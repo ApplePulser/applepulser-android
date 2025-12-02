@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shinythinking.applepulser_android.domain.model.Player
+import com.shinythinking.applepulser_android.domain.model.PlayerStatus
 import com.shinythinking.applepulser_android.domain.model.PlayerType
 
 @Composable
@@ -50,9 +51,9 @@ fun AppleCharacter(
             textAlign = TextAlign.Center
         )
 
-        if (showHeartRate && player.heartRate > 0) {
+        if (showHeartRate && player.bpm != null) {
             Text(
-                text = "${player.heartRate}bpm",
+                text = "${player.bpm}bpm",
                 fontSize = 12.sp,
                 color = Color.White.copy(alpha = 0.8f)
             )
@@ -72,10 +73,14 @@ fun AppleCharacterPreview() {
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 AppleCharacter(
-                    player = Player("1", "홍사인", 145, 1, PlayerType.YELLOW)
-                )
-                AppleCharacter(
-                    player = Player("2", "한예준", 132, 2, PlayerType.GREEN)
+                    player = Player(
+                        id = "1",
+                        name = "홍사인",
+                        status = PlayerStatus.PLAYING,
+                        isHost = true,
+                        colorType = PlayerType.YELLOW,
+                        bpm = 120
+                    )
                 )
             }
         }

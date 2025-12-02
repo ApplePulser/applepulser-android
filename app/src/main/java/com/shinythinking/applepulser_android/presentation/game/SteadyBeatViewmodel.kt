@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.shinythinking.applepulser_android.domain.model.GameStatus
 import com.shinythinking.applepulser_android.domain.model.Limit
 import com.shinythinking.applepulser_android.domain.model.Player
+import com.shinythinking.applepulser_android.domain.model.PlayerStatus
 import com.shinythinking.applepulser_android.domain.model.PlayerType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -55,10 +56,34 @@ class SteadyBeatViewmodel @Inject constructor(
                 elapsedTime = 0,
                 totalTime = 300,
                 players = listOf(
-                    Player("user1", "신바다", 140, 1, PlayerType.RED),
-                    Player("user2", "한예준", 135, 2, PlayerType.WHITE),
-                    Player("user3", "홍사인", 145, 3, PlayerType.YELLOW),
-                    Player("user4", "김나경", 120, 4, PlayerType.GREEN)
+                    Player(
+                        id = "1",
+                        name = "홍사인",
+                        status = PlayerStatus.PLAYING,
+                        isHost = true,
+                        colorType = PlayerType.YELLOW
+                    ),
+                    Player(
+                        id = "2",
+                        name = "한예준",
+                        status = PlayerStatus.PLAYING,
+                        isHost = true,
+                        colorType = PlayerType.RED
+                    ),
+                    Player(
+                        id = "3",
+                        name = "김나경",
+                        status = PlayerStatus.PLAYING,
+                        isHost = true,
+                        colorType = PlayerType.WHITE
+                    ),
+                    Player(
+                        id = "4",
+                        name = "신바다",
+                        status = PlayerStatus.PLAYING,
+                        isHost = true,
+                        colorType = PlayerType.GREEN
+                    ),
                 ),
                 limit = Limit(120, 160)
             )
@@ -138,7 +163,7 @@ class SteadyBeatViewmodel @Inject constructor(
 
         val updatedPlayers = currentStatus.players.map { player ->
             if (player.rank == oldRank) {
-                player.copy(heartRate = newHeartRate, rank = newRank)
+                player.copy(bpm = newHeartRate, rank = newRank)
             } else {
                 player
             }
