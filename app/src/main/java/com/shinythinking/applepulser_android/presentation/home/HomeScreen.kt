@@ -14,13 +14,36 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.shinythinking.applepulser_android.R
 import com.shinythinking.applepulser_android.presentation.base.component.APBackground
 import com.shinythinking.applepulser_android.presentation.base.component.APLongButton
 import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun HomeScreen(
+    onNavigateToLaunchRoom: () -> Unit,
+    onNavigateToEnterRoom: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            is HomeContract.SideEffect.NavigateToLaunchRoom -> onNavigateToLaunchRoom()
+            is HomeContract.SideEffect.NavigateToEnterRoom -> onNavigateToEnterRoom()
+        }
+    }
+
+    HomeScreenContent(
+        onIntent = viewModel::onIntent,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun HomeScreenContent(
+    onIntent: (HomeContract.Intent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     APBackground(
@@ -44,14 +67,14 @@ fun HomeScreen(
             Spacer(Modifier.height(36.dp))
 
             APLongButton(
-                onClick = {},
+                onClick = { onIntent(HomeContract.Intent.LaunchRoomClick) },
                 "Launch Room"
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             APLongButton(
-                onClick = {},
+                onClick = { onIntent(HomeContract.Intent.EnterRoomClick) },
                 "Enter Room"
             )
         }
@@ -63,6 +86,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     ApplepulserTheme {
-        HomeScreen()
+        HomeScreen({}, {})
     }
 }
