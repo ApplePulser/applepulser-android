@@ -31,6 +31,7 @@ fun APBackground(
     backExist: Boolean = false,
     buttonExist: Boolean = false,
     buttonText: String = "",
+    buttonEnable: Boolean = true,
     isClicked: Boolean = false,
     onBackButtonClicked: () -> Unit = {},
     onButtonClick: () -> Unit = {},
@@ -62,6 +63,7 @@ fun APBackground(
             if (backExist) {
                 IconButton(
                     onClick = onBackButtonClicked,
+                    enabled = buttonEnable,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(24.dp)
