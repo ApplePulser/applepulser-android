@@ -20,11 +20,11 @@ fun APTextField(
 ) {
     OutlinedTextField(
         value = text,
-        onValueChange = onTextChange,
+        onValueChange = { onTextChange(it) },
         modifier = modifier,
         textStyle = TextStyle(
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.secondary,
+            color = Color.Black,
             fontSize = 20.sp
         ),
         shape = RoundedCornerShape(50.dp),
