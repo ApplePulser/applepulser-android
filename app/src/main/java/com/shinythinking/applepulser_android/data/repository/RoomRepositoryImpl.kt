@@ -59,21 +59,20 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun joinRoom(userId: String, roomCode: String): RoomInfo {
+    override suspend fun joinRoom(userName: String, roomCode: String): RoomInfo {
         if (!isValidRoomCode(roomCode)) {
             throw InvalidRoomCodeException()
         }
 
         try {
             val request = JoinRoomRequest(
-                playerId = userId
+                playerName = userName,
+                roomCode = roomCode
             )
 
-            // todo code 주고 info 받는 거 만들어야 함.
+            val response = apiDataSource.joinRoom(request)
 
-            val response = apiDataSource.joinRoom(request, roomCode)
-
-            socketDataSource.connect(roomCode)
+            socketDataSource.connect(response.room.roomId)
 
             getRoomInfo(response.room.roomId)
             val roomInfo = response.toDomain()
