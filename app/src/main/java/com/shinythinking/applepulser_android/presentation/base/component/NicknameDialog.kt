@@ -65,7 +65,7 @@ fun NicknameDialogContent(
 
         APTextField(
             text = nickname,
-            onTextChange = onNicknameChange,
+            onTextChange = { onNicknameChange(it) },
             modifier = Modifier.fillMaxWidth(),
         )
 
