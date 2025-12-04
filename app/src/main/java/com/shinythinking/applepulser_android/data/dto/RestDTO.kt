@@ -44,7 +44,8 @@ data class RoomPlayerDto(
 
 @Serializable
 data class JoinRoomRequest(
-    @SerialName("player_id") val playerId: String,
+    @SerialName("nickname") val playerName: String,
+    @SerialName("room_code") val roomCode: String
 )
 
 @Serializable

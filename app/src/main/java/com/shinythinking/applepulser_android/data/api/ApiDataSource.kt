@@ -30,7 +30,7 @@ class ApiDataSource @Inject constructor(
 
         private const val ROOM_CREATE = "$BASE_URL/rooms/"
         private const val ROOM_INFO = "$BASE_URL/rooms/{roomId}/"
-        private const val ROOM_JOIN = "$BASE_URL/rooms/{roomId}/join/"
+        private const val ROOM_JOIN = "$BASE_URL/rooms/join/"
         private const val ROOM_LEAVE = "$BASE_URL/rooms/{roomId}/leave/"
         private const val ROOM_DELETE = "$BASE_URL/rooms/{roomId}/?player_id={playerId}"
         private const val GAME_START = "$BASE_URL/rooms/{roomId}/start/"
@@ -47,8 +47,8 @@ class ApiDataSource @Inject constructor(
         return client.get(ROOM_INFO.replace("{roomId}", roomId)).body()
     }
 
-    suspend fun joinRoom(request: JoinRoomRequest, roomId: String): JoinRoomResponse {
-        return client.post(ROOM_JOIN.replace("{roomId}", roomId)) {
+    suspend fun joinRoom(request: JoinRoomRequest): JoinRoomResponse {
+        return client.post(ROOM_JOIN) {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
