@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,6 +7,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
 }
 
 android {
@@ -17,6 +25,14 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        val bluetoothMacAddress = localProperties.getProperty("BLUETOOTH_MAC_ADDRESS")
+        val baseUrl = localProperties.getProperty("BASE_URL")
+        val wsHost = localProperties.getProperty("WS_HOST")
+
+        buildConfigField("String", "BLUETOOTH_MAC_ADDRESS", "\"$bluetoothMacAddress\"")
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "WS_HOST", "\"$wsHost\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,6 +49,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
