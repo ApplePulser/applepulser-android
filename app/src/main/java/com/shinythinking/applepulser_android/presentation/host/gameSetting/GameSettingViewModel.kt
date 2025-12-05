@@ -1,11 +1,16 @@
 package com.shinythinking.applepulser_android.presentation.host.gameSetting
 
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.navigation.toRoute
 import com.shinythinking.applepulser_android.domain.model.GameMode
 import com.shinythinking.applepulser_android.domain.model.GameSetting
 import com.shinythinking.applepulser_android.domain.repository.GameRepository
 import com.shinythinking.applepulser_android.domain.repository.RoomRepository
+import com.shinythinking.applepulser_android.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.serialization.json.Json
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -14,8 +19,13 @@ import javax.inject.Inject
 @HiltViewModel
 class GameSettingViewModel @Inject constructor(
     private val roomRepository: RoomRepository,
-    private val gameRepository: GameRepository
+    private val gameRepository: GameRepository,
+    private val json: Json,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel(), ContainerHost<GameSettingContract.State, GameSettingContract.SideEffect> {
+    private val args = savedStateHandle.toRoute<Route.GameSettings>()
+    private val roomId = args.roomId
+    private val playerId = args.playerId
 
     override val container: Container<GameSettingContract.State, GameSettingContract.SideEffect> =
         container(GameSettingContract.State.ModeSelection())
@@ -103,7 +113,7 @@ class GameSettingViewModel @Inject constructor(
             when (state) {
                 is GameSettingContract.State.SettingsInput -> {
                     (state as GameSettingContract.State.SettingsInput).copy(
-                        duration = value.coerceIn(1, 60)
+                        duration = value.coerceIn(1, 15)
                     )
                 }
 
@@ -140,22 +150,38 @@ class GameSettingViewModel @Inject constructor(
         reduce { GameSettingContract.State.Launching }
 
         try {
-            //todo
-            roomRepository.startGame(
-                playerId = "",
+            val roomInfo = roomRepository.getRoomInfo(roomId)
+            Log.d(
+                "GameSettingViewModel",
+                "Game started  successfully${roomInfo.players.map { it.name }}"
+            )
+
+            val response = roomRepository.startGame(
+                playerId = playerId,
+                roomId = roomId,
                 gameSetting = GameSetting(
-                    roomId = "",
+                    roomId = roomId,
                     gameMode = currentState.selectedMode,
                     bpmMin = currentState.minHeartRate,
                     bpmMax = currentState.maxHeartRate,
-                    players = listOf(),
-                    timeLimit = currentState.duration
+                    players = roomInfo.players,
+                    timeLimit = currentState.duration * 60
                 )
-
+            ).copy(
+                players = roomInfo.players
             )
-
-            postSideEffect(GameSettingContract.SideEffect.NavigateToGamePlay)
+            Log.d("GameSettingViewModel", "before, Game started  successfully")
+            postSideEffect(
+                GameSettingContract.SideEffect.NavigateToGamePlay(
+                    playerId = playerId,
+                    roomId = roomId,
+                    settingJson = json.encodeToString(response),
+                    deviceAddress = "", //todo
+                )
+            )
+            Log.d("GameSettingViewModel", "after, Game started  successfully")
         } catch (e: Exception) {
+            Log.e("GameSettingViewModel", "CRASH in handleLaunch", e)
             reduce {
                 GameSettingContract.State.Error(
                     message = e.message ?: "Failed to start game",

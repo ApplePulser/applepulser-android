@@ -20,10 +20,7 @@ object GameSettingContract {
             val canProceed: Boolean get() = isValidSettings()
 
             private fun isValidSettings(): Boolean {
-                return minHeartRate in 60..180 &&
-                        maxHeartRate in 80..200 &&
-                        maxHeartRate > minHeartRate &&
-                        duration in 1..60
+                return minHeartRate in 60..180 && maxHeartRate in 80..200 && maxHeartRate > minHeartRate && duration in 1..60
             }
         }
 
@@ -37,8 +34,7 @@ object GameSettingContract {
         object Launching : State
 
         data class Error(
-            val message: String,
-            val previousState: State?
+            val message: String, val previousState: State?
         ) : State
     }
 
@@ -58,7 +54,13 @@ object GameSettingContract {
     }
 
     sealed interface SideEffect {
-        object NavigateToGamePlay : SideEffect
+        data class NavigateToGamePlay(
+            val playerId: String,
+            val roomId: String,
+            val settingJson: String,
+            val deviceAddress: String
+        ) : SideEffect
+
         object NavigateBack : SideEffect
         data class ShowToast(val message: String) : SideEffect
     }
