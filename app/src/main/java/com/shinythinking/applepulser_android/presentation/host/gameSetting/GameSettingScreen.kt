@@ -1,5 +1,6 @@
 package com.shinythinking.applepulser_android.presentation.host.gameSetting
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,14 +25,23 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun GameSettingScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToGamePlay: () -> Unit,
+    onNavigateToGamePlay: (String, String, String, String) -> Unit,
     viewModel: GameSettingViewModel = hiltViewModel()
 ) {
     val state by viewModel.collectAsState()
 
     viewModel.collectSideEffect { sideEffect ->
+        if (sideEffect is GameSettingContract.SideEffect.NavigateToGamePlay) {
+            Log.d("GameSettingScreen", "sideEffect: ${sideEffect.settingJson}")
+        }
         when (sideEffect) {
-            is GameSettingContract.SideEffect.NavigateToGamePlay -> onNavigateToGamePlay()
+            is GameSettingContract.SideEffect.NavigateToGamePlay -> onNavigateToGamePlay(
+                sideEffect.playerId,
+                sideEffect.roomId,
+                sideEffect.settingJson,
+                sideEffect.deviceAddress
+            )
+
             is GameSettingContract.SideEffect.NavigateBack -> onNavigateBack()
             is GameSettingContract.SideEffect.ShowToast -> {
                 // todo
