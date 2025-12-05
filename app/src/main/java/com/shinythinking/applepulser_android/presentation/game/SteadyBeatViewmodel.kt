@@ -1,35 +1,56 @@
 package com.shinythinking.applepulser_android.presentation.game
 
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.shinythinking.applepulser_android.BuildConfig
+import com.shinythinking.applepulser_android.domain.model.GameSetting
 import com.shinythinking.applepulser_android.domain.model.GameStatus
 import com.shinythinking.applepulser_android.domain.model.Limit
-import com.shinythinking.applepulser_android.domain.model.Player
-import com.shinythinking.applepulser_android.domain.model.PlayerStatus
-import com.shinythinking.applepulser_android.domain.model.PlayerType
+import com.shinythinking.applepulser_android.domain.model.event.GameEvent
+import com.shinythinking.applepulser_android.domain.repository.BluetoothRepository
+import com.shinythinking.applepulser_android.domain.repository.GameRepository
+import com.shinythinking.applepulser_android.domain.usecase.SyncHeartRateUseCase
+import com.shinythinking.applepulser_android.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
 class SteadyBeatViewmodel @Inject constructor(
-    // TODO:  HeartRateSensor, WebSocketManager, GameRepository
+    private val gameRepository: GameRepository,
+    private val bluetoothRepository: BluetoothRepository,
+    private val syncHeartRateUseCase: SyncHeartRateUseCase,
+    private val json: Json,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel(), ContainerHost<SteadyBeatContract.State, SteadyBeatContract.SideEffect> {
+    private val args = savedStateHandle.toRoute<Route.SteadyBeatGame>()
+    private val roomId: String = checkNotNull(savedStateHandle["roomId"])
+    private val playerId: String = checkNotNull(savedStateHandle["playerId"])
+    private val settingJson: String = checkNotNull(savedStateHandle["settingJson"])
+    private val deviceAddress: String =
+        BuildConfig.BLUETOOTH_MAC_ADDRESS //todo checkNotNull(savedStateHandle["deviceAddress"])
 
     override val container = container<SteadyBeatContract.State, SteadyBeatContract.SideEffect>(
         initialState = SteadyBeatContract.State.Connecting
-    )
+    ) {
+        connectToGame()
+    }
 
     private var gameTimerJob: Job? = null
     private var heartRateJob: Job? = null
-
-    init {
-        connectToGame()
-    }
 
     fun onIntent(intent: SteadyBeatContract.Intent) = when (intent) {
         is SteadyBeatContract.Intent.PauseClicked -> handlePause()
@@ -37,160 +58,164 @@ class SteadyBeatViewmodel @Inject constructor(
         is SteadyBeatContract.Intent.QuitClicked -> handleQuit()
         is SteadyBeatContract.Intent.ConfirmQuit -> handleConfirmQuit()
         is SteadyBeatContract.Intent.CancelQuit -> handleCancelQuit()
-        is SteadyBeatContract.Intent.RankAnimationFinished -> handleRankAnimationFinished()
         is SteadyBeatContract.Intent.RetryConnection -> handleRetryConnection()
     }
 
     private fun connectToGame() = intent {
-        reduce { SteadyBeatContract.State.Connecting }
+        viewModelScope.launch {
+            syncHeartRateUseCase(playerId)
+        }
 
         try {
-            // TODO: WebSocket 연결 및 게임 상태 구독
-            delay(1000)
+            gameRepository.observeGameEvents()
+                .onEach { handleGameEvent(it) }
+                .catch { Log.e("Viewmodel", "Game Event Error", it) }
+                .launchIn(viewModelScope)
 
-            val mockGameStatus = GameStatus(
-                currentHeartRate = 145,
-                currentRank = 3,
-                targetBpm = 140,
-                deviationFromTarget = 5,
-                elapsedTime = 0,
-                totalTime = 300,
-                players = listOf(
-                    Player(
-                        id = "1",
-                        name = "홍사인",
-                        status = PlayerStatus.PLAYING,
-                        isHost = true,
-                        colorType = PlayerType.YELLOW
-                    ),
-                    Player(
-                        id = "2",
-                        name = "한예준",
-                        status = PlayerStatus.PLAYING,
-                        isHost = true,
-                        colorType = PlayerType.RED
-                    ),
-                    Player(
-                        id = "3",
-                        name = "김나경",
-                        status = PlayerStatus.PLAYING,
-                        isHost = true,
-                        colorType = PlayerType.WHITE
-                    ),
-                    Player(
-                        id = "4",
-                        name = "신바다",
-                        status = PlayerStatus.PLAYING,
-                        isHost = true,
-                        colorType = PlayerType.GREEN
-                    ),
-                ),
-                limit = Limit(120, 160)
-            )
+            val gameSetting = try {
+                json.decodeFromString<GameSetting>(settingJson)
+            } catch (e: Exception) {
+                throw RuntimeException("Settings parsing failed")
+            }
 
             reduce {
-                SteadyBeatContract.State.Playing(gameStatus = mockGameStatus)
+                SteadyBeatContract.State.Playing(
+                    gameStatus = GameStatus(
+                        totalTime = gameSetting.timeLimit,
+                        players = gameSetting.players,
+                        limit = Limit(gameSetting.bpmMin, gameSetting.bpmMax),
+                        currentHeartRate = 0,
+                        currentRank = 0,
+                        deviationFromTarget = 0
+                    ),
+                    isPaused = false
+                )
             }
 
             startGameTimer()
             startHeartRateMonitoring()
+
         } catch (e: Exception) {
             reduce {
                 SteadyBeatContract.State.Error(
-                    message = e.message ?: "Failed to connect to game",
+                    message = e.message ?: "Failed to connect",
                     canRetry = true
                 )
             }
         }
     }
 
+    private fun handleGameEvent(event: GameEvent) = intent {
+        when (event) {
+            is GameEvent.HeartbeatUpdate -> {
+                handleHeartbeatUpdate(event)
+            }
+
+            is GameEvent.GameEnded -> {
+                gameTimerJob?.cancel()
+                reduce { SteadyBeatContract.State.Finished }
+                val resultJson = json.encodeToString(event.results)
+
+                postSideEffect(
+                    SteadyBeatContract.SideEffect.NavigateToResult(
+                        roomId = roomId,
+                        myPlayerId = playerId,
+                        resultJson = resultJson
+                    )
+                )
+            }
+
+            is GameEvent.ErrorDelivered -> {
+                reduce {
+                    SteadyBeatContract.State.Error(
+                        message = event.message,
+                        canRetry = true
+                    )
+                }
+            }
+
+            is GameEvent.PlayerLeft -> TODO()
+        }
+    }
+
+    private fun handleHeartbeatUpdate(event: GameEvent.HeartbeatUpdate) = intent {
+        val currentState = state as? SteadyBeatContract.State.Playing ?: return@intent
+        val currentStatus = currentState.gameStatus.copy(
+            players = event.players
+        )
+
+        reduce {
+            currentState.copy(gameStatus = currentStatus)
+        }
+    }
+
     private fun startGameTimer() {
         gameTimerJob?.cancel()
         gameTimerJob = viewModelScope.launch {
+
             while (true) {
                 delay(1000)
 
                 intent {
-                    val currentState = state as? SteadyBeatContract.State.Playing ?: return@intent
+                    val currentState =
+                        state as? SteadyBeatContract.State.Playing ?: return@intent
                     val currentStatus = currentState.gameStatus
+
                     val newElapsedTime = currentStatus.elapsedTime + 1
 
-                    if (newElapsedTime >= currentStatus.totalTime) {
+                    if (newElapsedTime <= currentStatus.totalTime) {
+                        reduce {
+                            currentState.copy(
+                                gameStatus = currentStatus.copy(elapsedTime = newElapsedTime)
+                            )
+                        }
+                    } else {
                         gameTimerJob?.cancel()
-                        postSideEffect(SteadyBeatContract.SideEffect.NavigateToResult)
-                        return@intent
-                    }
-
-                    reduce {
-                        currentState.copy(
-                            gameStatus = currentStatus.copy(elapsedTime = newElapsedTime)
-                        )
                     }
                 }
             }
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun startHeartRateMonitoring() {
         heartRateJob?.cancel()
         heartRateJob = viewModelScope.launch {
-            // TODO: 실제 센서에서 심박수 데이터 받기
-
-            // 이건 일단 mock
-            while (true) {
-                delay(1000)
-                val mockHeartRate = (120..160).random()
-                updateHeartRate(mockHeartRate)
+            launch {
+                try {
+                    bluetoothRepository.connect(deviceAddress)
+                } catch (e: Exception) {
+                    Log.e("SteadyBeatViewModel", "Connection failed", e)
+                }
             }
+
+            bluetoothRepository.observeHeartRate()
+                .sample(500L)
+                .collect { bpm ->
+                    Log.d("SteadyBeatViewModel", "Heart Rate Update: $bpm")
+                    updateHeartRate(bpm)
+                }
         }
     }
 
     private fun updateHeartRate(newHeartRate: Int) = intent {
         val currentState = state as? SteadyBeatContract.State.Playing ?: return@intent
         val currentStatus = currentState.gameStatus
-        val oldRank = currentStatus.currentRank
-
-        // TODO: 서버로 심박수 전송 및 순위 계산
-
-        // 이것도 mock
-        val newRank = if (Math.random() > 0.8) {
-            (1..currentStatus.players.size).random()
-        } else {
-            oldRank
+        val newPlayers = currentState.gameStatus.players.map {
+            if (it.id == playerId)
+                it.copy(bpm = newHeartRate)
+            else it
         }
-
-        val deviation = newHeartRate - currentStatus.targetBpm
-
-        val updatedPlayers = currentStatus.players.map { player ->
-            if (player.rank == oldRank) {
-                player.copy(bpm = newHeartRate, rank = newRank)
-            } else {
-                player
-            }
-        }.sortedBy { it.rank }
+        val deviation = newHeartRate - currentState.targetBpm
 
         reduce {
             currentState.copy(
                 gameStatus = currentStatus.copy(
                     currentHeartRate = newHeartRate,
-                    currentRank = newRank,
                     deviationFromTarget = deviation,
-                    players = updatedPlayers
+                    players = newPlayers
                 )
             )
-        }
-
-        if (oldRank != newRank) {
-            reduce {
-                val updatedState = state as? SteadyBeatContract.State.Playing
-                updatedState!!.copy(
-                    rankAnimation = SteadyBeatContract.RankChangeAnimation(
-                        oldRank = oldRank,
-                        newRank = newRank
-                    )
-                )
-            }
-            postSideEffect(SteadyBeatContract.SideEffect.VibrateRankChange)
         }
     }
 
@@ -230,14 +255,6 @@ class SteadyBeatViewmodel @Inject constructor(
     }
 
     private fun handleCancelQuit() = intent {
-    }
-
-    private fun handleRankAnimationFinished() = intent {
-        val currentState = state as? SteadyBeatContract.State.Playing ?: return@intent
-
-        reduce {
-            currentState.copy(rankAnimation = null)
-        }
     }
 
     private fun handleRetryConnection() = intent {

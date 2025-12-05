@@ -6,21 +6,20 @@ import com.shinythinking.applepulser_android.domain.model.Player
 object SteadyBeatContract {
 
     sealed interface State {
-        object Connecting : State
+        data object Connecting : State
 
         data class Playing(
             val gameStatus: GameStatus,
             val isPaused: Boolean = false,
-            val rankAnimation: RankChangeAnimation? = null
         ) : State {
             val currentHeartRate: Int
-                get() = gameStatus.currentHeartRate
+                get() = gameStatus.currentHeartRate ?: 0
 
             val currentRank: Int
-                get() = gameStatus.currentRank
+                get() = gameStatus.currentRank ?: 0
 
             val deviationFromTarget: Int
-                get() = gameStatus.deviationFromTarget
+                get() = gameStatus.deviationFromTarget ?: 0
 
             val players: List<Player>
                 get() = gameStatus.players
@@ -31,23 +30,17 @@ object SteadyBeatContract {
             val totalTimeFormatted: String
                 get() = gameStatus.totalTimeFormatted
 
+            val targetBpm: Int
+                get() = (gameStatus.limit.max + gameStatus.limit.min) / 2
+
         }
+
+        data object Finished : State
 
         data class Error(
             val message: String,
             val canRetry: Boolean = true
         ) : State
-    }
-
-    data class RankChangeAnimation(
-        val oldRank: Int,
-        val newRank: Int
-    ) {
-        val isRankUp: Boolean
-            get() = newRank < oldRank
-
-        val message: String
-            get() = if (isRankUp) "Rank Up!" else "Rank Down"
     }
 
     sealed interface Intent {
@@ -56,14 +49,17 @@ object SteadyBeatContract {
         object QuitClicked : Intent
         object ConfirmQuit : Intent
         object CancelQuit : Intent
-        object RankAnimationFinished : Intent
         object RetryConnection : Intent
     }
 
     sealed interface SideEffect {
-        object NavigateToResult : SideEffect
+        data class NavigateToResult(
+            val roomId: String,
+            val myPlayerId: String,
+            val resultJson: String
+        ) : SideEffect
+
         object NavigateBack : SideEffect
-        object VibrateRankChange : SideEffect
         data class ShowToast(val message: String) : SideEffect
         data class ShowQuitDialog(val message: String) : SideEffect
     }
