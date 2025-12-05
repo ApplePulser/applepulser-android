@@ -78,7 +78,13 @@ class CodeInputViewModel @Inject constructor(
                     showNicknameDialog = false
                 )
             }
-            postSideEffect(CodeInputContract.SideEffect.NavigateToRoom(roomId = roomInfo.roomId))
+            postSideEffect(
+                CodeInputContract.SideEffect.NavigateToRoom(
+
+                    roomId = roomInfo.roomId,
+                    playerId = roomInfo.myPlayerId ?: throw Exception("No player id"),
+                )
+            )
         } catch (e: Exception) {
             reduce { state.copy(isLoading = false) }
             postSideEffect(CodeInputContract.SideEffect.ShowToast(e.message ?: "Failed to join"))

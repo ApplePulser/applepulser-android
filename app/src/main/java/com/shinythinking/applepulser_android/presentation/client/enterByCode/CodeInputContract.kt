@@ -18,7 +18,7 @@ object CodeInputContract {
     }
 
     sealed interface SideEffect {
-        data class NavigateToRoom(val roomId: String) : SideEffect
+        data class NavigateToRoom(val roomId: String, val playerId: String) : SideEffect
         data class ShowToast(val message: String) : SideEffect
     }
 }

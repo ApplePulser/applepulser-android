@@ -32,7 +32,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun CodeInputScreen(
-    onNavigateToRoom: (String) -> Unit,
+    onNavigateToRoom: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CodeInputViewModel = hiltViewModel(),
 ) {
@@ -41,7 +41,10 @@ fun CodeInputScreen(
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is CodeInputContract.SideEffect.NavigateToRoom -> onNavigateToRoom(sideEffect.roomId)
+            is CodeInputContract.SideEffect.NavigateToRoom -> onNavigateToRoom(
+                sideEffect.roomId, sideEffect.playerId
+            )
+
             is CodeInputContract.SideEffect.ShowToast -> Toast.makeText(
                 context,
                 sideEffect.message,
@@ -69,6 +72,9 @@ fun CodeInputContent(
         modifier = modifier,
         appleExist = true,
         backExist = true,
+        buttonExist = true,
+        buttonText = "Enter",
+        onButtonClick = { onIntent(CodeInputContract.Intent.VerifyCode) }
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -129,7 +135,9 @@ fun CodeInputScreenPreview() {
     ApplepulserTheme {
         CodeInputContent(
             modifier = Modifier,
-            state = CodeInputContract.State(),
+            state = CodeInputContract.State(
+                showNicknameDialog = true
+            ),
             onIntent = {}
         )
     }
