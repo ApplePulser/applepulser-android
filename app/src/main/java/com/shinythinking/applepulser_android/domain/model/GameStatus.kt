@@ -1,14 +1,13 @@
 package com.shinythinking.applepulser_android.domain.model
 
 data class GameStatus(
-    val currentHeartRate: Int,
-    val currentRank: Int,
-    val targetBpm: Int,
-    val deviationFromTarget: Int,
-    val elapsedTime: Int,
+    val currentHeartRate: Int?,
+    val currentRank: Int?,
+    val deviationFromTarget: Int?,
     val totalTime: Int,
     val players: List<Player>,
     val limit: Limit,
+    val elapsedTime: Int = 0,
 ) {
     val remainingTime: Int
         get() = totalTime - elapsedTime

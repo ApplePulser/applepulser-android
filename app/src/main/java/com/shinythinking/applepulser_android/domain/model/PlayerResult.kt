@@ -1,12 +1,13 @@
 package com.shinythinking.applepulser_android.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class PlayerResult(
-    val player: Player,
+    val playerId: String,
+    val name: String,
     val rank: Int,
-    val score: Int,
-    val workoutTime: Int,
-    val averageBpm: Int,
+    val averageBpm: Double,
     val maxBpm: Int,
     val minBpm: Int,
-    val timeInZone: Int
 )

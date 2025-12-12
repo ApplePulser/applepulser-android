@@ -1,5 +1,8 @@
 package com.shinythinking.applepulser_android.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Player(
     val id: String,
     val name: String,
@@ -12,6 +15,7 @@ data class Player(
     val rank: Int? = null,
 )
 
+@Serializable
 enum class PlayerStatus {
     WAITING,
     READY,
@@ -19,6 +23,7 @@ enum class PlayerStatus {
     FINISHED
 }
 
+@Serializable
 enum class PlayerType {
     RED,
     YELLOW,
