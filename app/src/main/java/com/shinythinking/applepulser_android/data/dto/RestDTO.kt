@@ -12,9 +12,11 @@ data class CreateRoomRequest(
 data class CreateRoomResponse(
     @SerialName("room_id") val roomId: String,
     @SerialName("room_code") val roomCode: String,
-    @SerialName("qr_code_url") val qrCode: String,
-    @SerialName("host") val host: RoomHostDto,
+//    @SerialName("qr_code_url") val qrCode: String,
+//    @SerialName("host") val host: RoomHostDto,
     @SerialName("status") val status: String,
+    @SerialName("max_players") val maxPlayers: Int,
+    @SerialName("players") val players: List<RoomPlayerDto>,
     @SerialName("created_at") val createdAt: String
 )
 
@@ -50,6 +52,17 @@ data class JoinRoomRequest(
 
 @Serializable
 data class JoinRoomResponse(
+    @SerialName("player_id") val myPlayerId: String,
+    @SerialName("room_id") val roomId: String,
+    @SerialName("room_code") val roomCode: String,
+    @SerialName("status") val status: String,
+    @SerialName("max_players") val maxPlayers: Int,
+    @SerialName("players") val players: List<RoomPlayerDto>,
+    @SerialName("created_at") val createdAt: String
+)
+
+@Serializable
+data class GetMyPlayerInfoResponse(
     @SerialName("player_id") val playerId: String,
     @SerialName("nickname") val nickname: String,
     @SerialName("room") val room: RoomSimpleInfoDto,
@@ -77,7 +90,7 @@ data class LeaveRoomResponse(
 data class StartGameRequest(
     @SerialName("player_id") val playerId: String,
     @SerialName("mode") val mode: String,
-    @SerialName("time_limit") val timeLimit: Int,
+    @SerialName("time_limit_seconds") val timeLimitSeconds: Int,
     @SerialName("bpm_min") val bpmMin: Int,
     @SerialName("bpm_max") val bpmMax: Int
 )
