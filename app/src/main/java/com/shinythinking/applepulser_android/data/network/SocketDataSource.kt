@@ -1,6 +1,7 @@
 package com.shinythinking.applepulser_android.data.network
 
 import android.util.Log
+import com.shinythinking.applepulser_android.BuildConfig
 import com.shinythinking.applepulser_android.data.dto.WebSocketMessage
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.webSocket
@@ -12,6 +13,7 @@ import io.ktor.websocket.readText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,17 +25,20 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.pow
 
 @Singleton
 class SocketDataSource @Inject constructor(
     private val client: HttpClient,
-    private val json: Json
+    private val json: Json,
 ) {
     companion object {
         private const val TAG = "SharedSocketDataSource"
-
-        private const val WS_HOST = "10.0.2.2"
+        private const val WS_HOST = BuildConfig.WS_HOST
         private const val WS_PORT = 8000
+
+        private const val BASE_DELAY = 1000L
+        private const val MAX_DELAY = 10000L
     }
 
     private val _connectionState =
@@ -47,49 +52,79 @@ class SocketDataSource @Inject constructor(
     val errors: SharedFlow<WebSocketError> = _errors.asSharedFlow()
 
     private var sessionJob: Job? = null
-
     private var currentSession: WebSocketSession? = null
+
+    private var activeRoomId: String? = null
+    private var isExplicitDisconnect = false
+
+    private var pingJob: Job? = null
 
     suspend fun connect(roomId: String) {
         if (_connectionState.value is SocketConnectionState.Connected) return
 
+        activeRoomId = roomId
+        isExplicitDisconnect = false
+        startConnectionLoop(roomId)
+    }
+
+    private fun startConnectionLoop(roomId: String) {
         sessionJob?.cancel()
         sessionJob = CoroutineScope(Dispatchers.IO).launch {
-            try {
-                _connectionState.value = SocketConnectionState.Connecting
-                val path = "/ws/room/$roomId/"
+            var attempt = 0
 
-                Log.d(TAG, "Connecting to ws://$WS_HOST:$WS_PORT$path")
+            while (isActive && !isExplicitDisconnect) {
+                try {
+                    _connectionState.value =
+                        if (attempt == 0) SocketConnectionState.Connecting else SocketConnectionState.Reconnecting
 
-                client.webSocket(host = WS_HOST, port = WS_PORT, path = path) {
-                    currentSession = this
-                    _connectionState.value = SocketConnectionState.Connected
-                    Log.d(TAG, "WebSocket Connected!")
+                    val path = "/ws/game/$roomId/"
+                    Log.d(TAG, "Connecting attempt #$attempt to ws://$WS_HOST:$WS_PORT$path")
 
-                    for (frame in incoming) {
-                        try {
-                            if (frame is Frame.Text) {
-                                val text = frame.readText()
-                                Log.v(TAG, "RX: $text") // 로그 확인용
+                    client.webSocket(host = WS_HOST, port = WS_PORT, path = path) {
+                        currentSession = this
+                        _connectionState.value = SocketConnectionState.Connected
+                        Log.d(TAG, "WebSocket Connected!")
+                        attempt = 0
 
-                                val message = json.decodeFromString<WebSocketMessage>(text)
-                                _incomingMessages.emit(message)
+                        for (frame in incoming) {
+                            try {
+                                if (frame is Frame.Text) {
+                                    val text = frame.readText()
+                                    Log.v(TAG, "RX: $text")
+                                    val message = json.decodeFromString<WebSocketMessage>(text)
+                                    _incomingMessages.emit(message)
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Message parse error: ${e.message}")
                             }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Message parse error: ${e.message}")
                         }
                     }
+                    Log.d(TAG, "WebSocket Session Closed")
+
+                } catch (e: Exception) {
+                    Log.e(TAG, "WebSocket Connection Error", e)
+                    _connectionState.value = SocketConnectionState.Error(e)
+                    _errors.emit(WebSocketError.ConnectionFailed(e.message ?: "Connection failed"))
+                } finally {
+                    currentSession = null
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "WebSocket Error", e)
-                _connectionState.value = SocketConnectionState.Error(e)
-                _errors.emit(WebSocketError.ConnectionFailed(e.message ?: "Connection failed"))
-            } finally {
-                Log.d(TAG, "WebSocket Disconnected")
-                currentSession = null
-                _connectionState.value = SocketConnectionState.Disconnected
+
+                if (!isExplicitDisconnect) {
+                    val delayTime = calculateBackoffDelay(attempt)
+                    Log.d(TAG, "Reconnecting in ${delayTime}ms...")
+                    delay(delayTime)
+                    attempt++
+                } else {
+                    _connectionState.value = SocketConnectionState.Disconnected
+                    break
+                }
             }
         }
+    }
+
+    private fun calculateBackoffDelay(attempt: Int): Long {
+        val delay = BASE_DELAY * (2.0.pow(attempt)).toLong()
+        return delay.coerceAtMost(MAX_DELAY)
     }
 
     suspend fun sendMessage(message: WebSocketMessage) {
@@ -111,11 +146,18 @@ class SocketDataSource @Inject constructor(
     }
 
     suspend fun disconnect() {
-        if (currentSession != null) {
+        Log.d(TAG, "Explicit Disconnect requested")
+        isExplicitDisconnect = true
+        activeRoomId = null
+
+        try {
             currentSession?.close(CloseReason(CloseReason.Codes.NORMAL, "Client closed"))
-            currentSession = null
+        } catch (e: Exception) {
+            Log.e(TAG, "Error closing socket", e)
         }
+
         sessionJob?.cancel()
+        currentSession = null
         _connectionState.value = SocketConnectionState.Disconnected
     }
 }
