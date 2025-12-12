@@ -9,12 +9,12 @@ import com.shinythinking.applepulser_android.data.api.ApiDataSource
 import com.shinythinking.applepulser_android.data.local.datastore.UserSessionLocalDataSource
 import com.shinythinking.applepulser_android.data.local.datastore.UserSessionLocalDataSourceImpl
 import com.shinythinking.applepulser_android.data.network.SocketDataSource
-import com.shinythinking.applepulser_android.data.repository.BluetoothRepositoryImpl
 import com.shinythinking.applepulser_android.data.repository.GameRepositoryImpl
+import com.shinythinking.applepulser_android.data.repository.HeartbeatRepositoryImpl
 import com.shinythinking.applepulser_android.data.repository.RoomRepositoryImpl
 import com.shinythinking.applepulser_android.data.repository.UserSessionRepositoryImpl
-import com.shinythinking.applepulser_android.domain.repository.BluetoothRepository
 import com.shinythinking.applepulser_android.domain.repository.GameRepository
+import com.shinythinking.applepulser_android.domain.repository.HeartbeatRepository
 import com.shinythinking.applepulser_android.domain.repository.RoomRepository
 import com.shinythinking.applepulser_android.domain.repository.UserSessionRepository
 import dagger.Binds
@@ -24,7 +24,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -45,12 +45,12 @@ import kotlin.time.Duration.Companion.milliseconds
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
-
     @Provides
     @Singleton
     fun provideJson(): Json {
         return Json {
             ignoreUnknownKeys = true
+            coerceInputValues = true
             isLenient = true
             prettyPrint = true
             encodeDefaults = true
@@ -60,14 +60,14 @@ object DataModule {
     @Provides
     @Singleton
     fun provideHttpClient(json: Json): HttpClient {
-        return HttpClient(Android) {
+        return HttpClient(OkHttp) {
             install(ContentNegotiation) {
                 json(json)
             }
 
             install(WebSockets) {
                 contentConverter = KotlinxWebsocketSerializationConverter(json)
-                pingInterval = 20_000.milliseconds
+                pingInterval = 5_000.milliseconds
             }
 
             install(Logging) {
@@ -116,8 +116,8 @@ object DataModule {
         @Binds
         @Singleton
         abstract fun bindBluetoothRepository(
-            impl: BluetoothRepositoryImpl
-        ): BluetoothRepository
+            impl: HeartbeatRepositoryImpl
+        ): HeartbeatRepository
     }
 
     @Provides
