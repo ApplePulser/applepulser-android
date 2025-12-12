@@ -1,14 +1,15 @@
 package com.shinythinking.applepulser_android.data.repository
 
+import android.util.Log
 import com.shinythinking.applepulser_android.data.api.ApiDataSource
 import com.shinythinking.applepulser_android.data.dto.CreateRoomRequest
 import com.shinythinking.applepulser_android.data.dto.ErrorMessage
-import com.shinythinking.applepulser_android.data.dto.GameStartedMessage
+import com.shinythinking.applepulser_android.data.dto.GameStartMessage
 import com.shinythinking.applepulser_android.data.dto.JoinRoomRequest
 import com.shinythinking.applepulser_android.data.dto.LeaveRoomRequest
 import com.shinythinking.applepulser_android.data.dto.PlayerJoinedMessage
 import com.shinythinking.applepulser_android.data.dto.PlayerLeftMessage
-import com.shinythinking.applepulser_android.data.dto.SendReadyStatusMessage
+import com.shinythinking.applepulser_android.data.dto.PlayerReadyMessage
 import com.shinythinking.applepulser_android.data.dto.StartGameRequest
 import com.shinythinking.applepulser_android.data.dto.toDomain
 import com.shinythinking.applepulser_android.data.dto.toDomainEvent
@@ -20,6 +21,8 @@ import com.shinythinking.applepulser_android.domain.model.GameSetting
 import com.shinythinking.applepulser_android.domain.model.RoomInfo
 import com.shinythinking.applepulser_android.domain.model.event.RoomEvent
 import com.shinythinking.applepulser_android.domain.repository.RoomRepository
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ServerResponseException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import javax.inject.Inject
@@ -72,12 +75,9 @@ class RoomRepositoryImpl @Inject constructor(
 
             val response = apiDataSource.joinRoom(request)
 
-            socketDataSource.connect(response.room.roomId)
+            socketDataSource.connect(response.roomId)
 
-            getRoomInfo(response.room.roomId)
-            val roomInfo = response.toDomain()
-
-            return roomInfo
+            return response.toDomain()
         } catch (e: RoomException) {
             throw e
         } catch (e: Exception) {
@@ -110,25 +110,27 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun startGame(playerId: String, gameSetting: GameSetting): Boolean {
-        if (!gameSetting.canStart) {
-            throw GeneralRoomException("Cannot start game: conditions not met")
-        }
-
+    override suspend fun startGame(
+        playerId: String,
+        roomId: String,
+        gameSetting: GameSetting
+    ): GameSetting {
         try {
             val request = StartGameRequest(
                 playerId = playerId,
                 mode = gameSetting.gameMode.title,
-                timeLimit = gameSetting.timeLimit,
+                timeLimitSeconds = gameSetting.timeLimit,
                 bpmMax = gameSetting.bpmMax,
                 bpmMin = gameSetting.bpmMin,
             )
-            val response = apiDataSource.startGame(request, gameSetting.roomId)
+            val response = apiDataSource.startGame(request, roomId)
 
-            return response.message == "Game started"
+            return response.toDomain()
 
-        } catch (e: RoomException) {
-            throw e
+        } catch (e: ClientRequestException) {
+            throw GeneralRoomException("Client Error: ${e.response.status}")
+        } catch (e: ServerResponseException) {
+            throw GeneralRoomException("Server Error (500): Please check server logs.")
         } catch (e: Exception) {
             throw GeneralRoomException("Failed to start game: ${e.message}")
         }
@@ -136,11 +138,12 @@ class RoomRepositoryImpl @Inject constructor(
 
 
     override suspend fun setReadyStatus(playerId: String, isReady: Boolean) {
-        val status = if (isReady) "ready" else "not_ready"
+        val status = if (isReady) "true" else "true"
 
-        val message = SendReadyStatusMessage(
+        val message = PlayerReadyMessage(
             playerId = playerId,
-            status = status
+            isReady = status
+//            status = status
         )
 
         socketDataSource.sendMessage(message)
@@ -149,11 +152,13 @@ class RoomRepositoryImpl @Inject constructor(
     override fun observeRoomEvents(): Flow<RoomEvent> {
         return socketDataSource.incomingMessages
             .mapNotNull { message ->
+                Log.d("RoomEvent", "Received message: $message")
                 when (message) {
+                    is GameStartMessage -> message.toDomainEvent()
                     is PlayerJoinedMessage -> message.toDomainEvent()
                     is PlayerLeftMessage -> message.toDomainEvent()
-                    is GameStartedMessage -> message.toDomainEvent()
-                    is ErrorMessage -> RoomEvent.Error(message.message)
+                    is PlayerReadyMessage -> message.toDomainEvent()
+                    is ErrorMessage -> message.toDomainEvent()
                     else -> null
                 }
             }

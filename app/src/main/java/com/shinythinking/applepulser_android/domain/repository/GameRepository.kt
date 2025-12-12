@@ -7,9 +7,3 @@ interface GameRepository {
     suspend fun sendHeartRate(playerId: String, bpm: Int)
     fun observeGameEvents(): Flow<GameEvent>
 }
-
-data class RankUpdate(
-    val oldRank: Int,
-    val newRank: Int,
-    val timestamp: Long = System.currentTimeMillis()
-)

@@ -11,7 +11,7 @@ interface RoomRepository {
     suspend fun joinRoom(userName: String, roomCode: String): RoomInfo
     suspend fun leaveRoom(playerId: String, roomId: String): Boolean
     suspend fun deleteRoom(roomId: String, playerId: String): Boolean
-    suspend fun startGame(playerId: String, gameSetting: GameSetting): Boolean
+    suspend fun startGame(playerId: String, roomId: String, gameSetting: GameSetting): GameSetting
     suspend fun setReadyStatus(playerId: String, isReady: Boolean)
     fun observeRoomEvents(): Flow<RoomEvent>
 }
