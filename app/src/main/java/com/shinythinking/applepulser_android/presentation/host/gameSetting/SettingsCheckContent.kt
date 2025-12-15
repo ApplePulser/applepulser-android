@@ -33,6 +33,7 @@ import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 @Composable
 fun SettingsCheckContent(
     selectedMode: GameMode,
+    numOfParticipants: Int,
     minHeartRate: Int,
     maxHeartRate: Int,
     duration: Int,
@@ -66,7 +67,7 @@ fun SettingsCheckContent(
             Spacer(modifier = Modifier.height(36.dp))
 
             Text(
-                text = "Number of participants: 4",
+                text = "Number of participants: $numOfParticipants",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
             )
@@ -146,6 +147,7 @@ fun SettingsCheckPreview() {
         APBackground {
             SettingsCheckContent(
                 selectedMode = GameMode.STEADY_BEAT,
+                numOfParticipants = 2,
                 minHeartRate = 120,
                 maxHeartRate = 140,
                 duration = 5,

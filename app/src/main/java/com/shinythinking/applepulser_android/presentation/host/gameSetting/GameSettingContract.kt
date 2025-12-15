@@ -1,17 +1,21 @@
 package com.shinythinking.applepulser_android.presentation.host.gameSetting
 
 import com.shinythinking.applepulser_android.domain.model.GameMode
+import com.shinythinking.applepulser_android.domain.model.RoomInfo
 
 object GameSettingContract {
 
     sealed interface State {
+        val roomInfo: RoomInfo?
         data class ModeSelection(
+            override val roomInfo: RoomInfo? = null,
             val selectedMode: GameMode? = null
         ) : State {
             val canProceed: Boolean get() = selectedMode != null
         }
 
         data class SettingsInput(
+            override val roomInfo: RoomInfo? = null,
             val selectedMode: GameMode,
             val minHeartRate: Int = 120,
             val maxHeartRate: Int = 140,
@@ -25,17 +29,22 @@ object GameSettingContract {
         }
 
         data class SettingsCheck(
+            override val roomInfo: RoomInfo? = null,
             val selectedMode: GameMode,
             val minHeartRate: Int,
             val maxHeartRate: Int,
             val duration: Int,
         ) : State
 
-        object Launching : State
+        data object Launching : State {
+            override val roomInfo: RoomInfo? = null
+        }
 
         data class Error(
             val message: String, val previousState: State?
-        ) : State
+        ) : State {
+            override val roomInfo: RoomInfo? = null
+        }
     }
 
     sealed interface Intent {

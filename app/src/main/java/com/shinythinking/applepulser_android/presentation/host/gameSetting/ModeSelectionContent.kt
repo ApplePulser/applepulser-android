@@ -56,7 +56,7 @@ fun ModeSelectionContent(
                 APBigButton(
                     onClick = { onModeSelected(GameMode.STEADY_BEAT) },
                     text = "Steady\nBeat",
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1.1f),
                     isClicked = selectedMode == GameMode.STEADY_BEAT
                 )
                 APBigButton(

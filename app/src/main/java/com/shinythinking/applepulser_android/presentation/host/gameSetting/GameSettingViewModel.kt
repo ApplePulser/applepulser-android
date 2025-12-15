@@ -28,7 +28,9 @@ class GameSettingViewModel @Inject constructor(
     private val playerId = args.playerId
 
     override val container: Container<GameSettingContract.State, GameSettingContract.SideEffect> =
-        container(GameSettingContract.State.ModeSelection())
+        container(GameSettingContract.State.ModeSelection()) {
+            getRoomInfo()
+        }
 
     fun onIntent(intent: GameSettingContract.Intent) {
         when (intent) {
@@ -37,7 +39,7 @@ class GameSettingViewModel @Inject constructor(
             is GameSettingContract.Intent.ModeNextClicked -> handleModeNext()
 
             // Step 2: Settings Input
-            is GameSettingContract.Intent.MinHeartRateChanged -> handleMinHeartRateChanged(intent.value)
+            is GameSettingContract.Intent.MinHeartRateChanged -> handleMinHeartbeatChanged(intent.value)
             is GameSettingContract.Intent.MaxHeartRateChanged -> handleMaxHeartRateChanged(intent.value)
             is GameSettingContract.Intent.DurationChanged -> handleDurationChanged(intent.value)
             is GameSettingContract.Intent.SettingsNextClicked -> handleSettingsNext()
@@ -48,6 +50,22 @@ class GameSettingViewModel @Inject constructor(
             // Common
             is GameSettingContract.Intent.BackClicked -> handleBack()
             is GameSettingContract.Intent.ErrorDismissed -> handleErrorDismissed()
+        }
+    }
+
+    private fun getRoomInfo() = intent {
+        try {
+            val info = roomRepository.getRoomInfo(roomId)
+
+            reduce {
+                if (state is GameSettingContract.State.ModeSelection) {
+                    (state as GameSettingContract.State.ModeSelection).copy(roomInfo = info)
+                } else {
+                    state
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("GameSettingViewModel", "Failed to load room info", e)
         }
     }
 
@@ -75,12 +93,13 @@ class GameSettingViewModel @Inject constructor(
 
         reduce {
             GameSettingContract.State.SettingsInput(
+                roomInfo = currentState.roomInfo,
                 selectedMode = currentState.selectedMode!!
             )
         }
     }
 
-    private fun handleMinHeartRateChanged(value: Int) = intent {
+    private fun handleMinHeartbeatChanged(value: Int) = intent {
         reduce {
             when (state) {
                 is GameSettingContract.State.SettingsInput -> {
@@ -132,6 +151,7 @@ class GameSettingViewModel @Inject constructor(
 
         reduce {
             GameSettingContract.State.SettingsCheck(
+                roomInfo = currentState.roomInfo,
                 selectedMode = currentState.selectedMode,
                 minHeartRate = currentState.minHeartRate,
                 maxHeartRate = currentState.maxHeartRate,
@@ -151,10 +171,6 @@ class GameSettingViewModel @Inject constructor(
 
         try {
             val roomInfo = roomRepository.getRoomInfo(roomId)
-            Log.d(
-                "GameSettingViewModel",
-                "Game started  successfully${roomInfo.players.map { it.name }}"
-            )
 
             val response = roomRepository.startGame(
                 playerId = playerId,
@@ -170,7 +186,6 @@ class GameSettingViewModel @Inject constructor(
             ).copy(
                 players = roomInfo.players
             )
-            Log.d("GameSettingViewModel", "before, Game started  successfully")
             postSideEffect(
                 GameSettingContract.SideEffect.NavigateToGamePlay(
                     playerId = playerId,
@@ -179,7 +194,6 @@ class GameSettingViewModel @Inject constructor(
                     deviceAddress = "", //todo
                 )
             )
-            Log.d("GameSettingViewModel", "after, Game started  successfully")
         } catch (e: Exception) {
             Log.e("GameSettingViewModel", "CRASH in handleLaunch", e)
             reduce {
