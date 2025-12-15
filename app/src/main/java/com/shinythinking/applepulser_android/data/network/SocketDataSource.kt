@@ -86,6 +86,8 @@ class SocketDataSource @Inject constructor(
                         Log.d(TAG, "WebSocket Connected!")
                         attempt = 0
 
+                        startPingPong()
+
                         for (frame in incoming) {
                             try {
                                 if (frame is Frame.Text) {
@@ -142,6 +144,26 @@ class SocketDataSource @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Send failed", e)
             _errors.emit(WebSocketError.SendFailed(e.message ?: "Send failed"))
+        }
+    }
+
+    private fun startPingPong() {
+        pingJob?.cancel()
+        pingJob = CoroutineScope(Dispatchers.IO).launch {
+            while (isActive) {
+                delay(5000L)
+                if (_connectionState.value is SocketConnectionState.Connected) {
+                    try {
+                        val pingJson = json.encodeToString(
+                            WebSocketMessage.serializer(),
+                            com.shinythinking.applepulser_android.data.dto.PingMessage
+                        )
+                        currentSession?.send(Frame.Text(pingJson))
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Ping failed", e)
+                    }
+                }
+            }
         }
     }
 

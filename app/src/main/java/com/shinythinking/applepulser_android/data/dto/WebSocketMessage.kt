@@ -12,6 +12,14 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 sealed interface WebSocketMessage
 
 @Serializable
+@SerialName("ping")
+object PingMessage : WebSocketMessage
+
+@Serializable
+@SerialName("pong")
+object PongMessage : WebSocketMessage
+
+@Serializable
 @SerialName("player_ready")
 data class PlayerReadyMessage(
     @SerialName("player_id") val playerId: String,
