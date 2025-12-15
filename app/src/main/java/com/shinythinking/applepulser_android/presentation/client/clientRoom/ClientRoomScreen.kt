@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.shinythinking.applepulser_android.R
 import com.shinythinking.applepulser_android.domain.model.Player
+import com.shinythinking.applepulser_android.domain.model.PlayerStatus
 import com.shinythinking.applepulser_android.domain.model.RoomInfo
 import com.shinythinking.applepulser_android.domain.model.RoomStatus
 import com.shinythinking.applepulser_android.presentation.base.component.APBackground
@@ -107,7 +108,7 @@ fun ClientRoomContent(
                 items(state.roomInfo.players) { player ->
                     APLabel(
                         text = player.name,
-                        isReady = true, // todo
+                        isReady = player.status == PlayerStatus.READY,
                         modifier = Modifier.padding(vertical = 16.dp)
                     )
                 }
