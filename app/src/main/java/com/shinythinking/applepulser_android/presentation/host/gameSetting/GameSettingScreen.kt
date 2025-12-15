@@ -15,10 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.shinythinking.applepulser_android.domain.model.GameMode
 import com.shinythinking.applepulser_android.presentation.base.component.APBackground
+import com.shinythinking.applepulser_android.ui.theme.ApplepulserTheme
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -105,6 +108,7 @@ fun GameSettingContent(
             is GameSettingContract.State.SettingsCheck -> {
                 SettingsCheckContent(
                     selectedMode = currentState.selectedMode,
+                    numOfParticipants = currentState.roomInfo?.players?.size ?: 1,
                     minHeartRate = currentState.minHeartRate,
                     maxHeartRate = currentState.maxHeartRate,
                     duration = currentState.duration,
@@ -144,6 +148,70 @@ fun LaunchingScreen() {
                 text = "Launching game...",
                 fontSize = 18.sp,
                 color = Color.White
+            )
+        }
+    }
+}
+
+@Preview(name = "1. Mode Selection", showBackground = true)
+@Composable
+fun PreviewModeSelection() {
+    ApplepulserTheme {
+        APBackground {
+            GameSettingContent(
+                state = GameSettingContract.State.ModeSelection(
+                    selectedMode = null
+                ),
+                onIntent = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "2. Settings Input", showBackground = true)
+@Composable
+fun PreviewSettingsInput() {
+    ApplepulserTheme {
+        APBackground {
+            GameSettingContent(
+                state = GameSettingContract.State.SettingsInput(
+                    selectedMode = GameMode.STEADY_BEAT,
+                    minHeartRate = 120,
+                    maxHeartRate = 140,
+                    duration = 3
+                ),
+                onIntent = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "3. Settings Check", showBackground = true)
+@Composable
+fun PreviewSettingsCheck() {
+    ApplepulserTheme {
+        APBackground {
+            GameSettingContent(
+                state = GameSettingContract.State.SettingsCheck(
+                    selectedMode = GameMode.STEADY_BEAT,
+                    minHeartRate = 110,
+                    maxHeartRate = 150,
+                    duration = 5
+                ),
+                onIntent = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "4. Launching (Loading)", showBackground = true)
+@Composable
+fun PreviewLaunching() {
+    ApplepulserTheme {
+        APBackground {
+            GameSettingContent(
+                state = GameSettingContract.State.Launching,
+                onIntent = {}
             )
         }
     }
