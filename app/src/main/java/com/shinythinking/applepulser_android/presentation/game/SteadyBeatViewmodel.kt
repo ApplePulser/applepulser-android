@@ -10,9 +10,9 @@ import com.shinythinking.applepulser_android.domain.model.GameSetting
 import com.shinythinking.applepulser_android.domain.model.GameStatus
 import com.shinythinking.applepulser_android.domain.model.Limit
 import com.shinythinking.applepulser_android.domain.model.event.GameEvent
-import com.shinythinking.applepulser_android.domain.repository.BluetoothRepository
 import com.shinythinking.applepulser_android.domain.repository.GameRepository
-import com.shinythinking.applepulser_android.domain.usecase.SyncHeartRateUseCase
+import com.shinythinking.applepulser_android.domain.repository.HeartbeatRepository
+import com.shinythinking.applepulser_android.domain.usecase.SyncHeartbeatUseCase
 import com.shinythinking.applepulser_android.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
@@ -31,8 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SteadyBeatViewmodel @Inject constructor(
     private val gameRepository: GameRepository,
-    private val bluetoothRepository: BluetoothRepository,
-    private val syncHeartRateUseCase: SyncHeartRateUseCase,
+    private val heartbeatRepository: HeartbeatRepository,
+    private val syncHeartbeatUseCase: SyncHeartbeatUseCase,
     private val json: Json,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), ContainerHost<SteadyBeatContract.State, SteadyBeatContract.SideEffect> {
@@ -63,7 +63,7 @@ class SteadyBeatViewmodel @Inject constructor(
 
     private fun connectToGame() = intent {
         viewModelScope.launch {
-            syncHeartRateUseCase(playerId)
+            syncHeartbeatUseCase(playerId)
         }
 
         try {
@@ -183,13 +183,13 @@ class SteadyBeatViewmodel @Inject constructor(
         heartRateJob = viewModelScope.launch {
             launch {
                 try {
-                    bluetoothRepository.connect(deviceAddress)
+                    heartbeatRepository.connect(deviceAddress)
                 } catch (e: Exception) {
                     Log.e("SteadyBeatViewModel", "Connection failed", e)
                 }
             }
 
-            bluetoothRepository.observeHeartRate()
+            heartbeatRepository.observeHeartRate()
                 .sample(500L)
                 .collect { bpm ->
                     Log.d("SteadyBeatViewModel", "Heart Rate Update: $bpm")

@@ -1,5 +1,6 @@
 package com.shinythinking.applepulser_android.data.api
 
+import com.shinythinking.applepulser_android.BuildConfig
 import com.shinythinking.applepulser_android.data.dto.CreateRoomRequest
 import com.shinythinking.applepulser_android.data.dto.CreateRoomResponse
 import com.shinythinking.applepulser_android.data.dto.GetRoomInfoResponse
@@ -25,8 +26,7 @@ class ApiDataSource @Inject constructor(
     private val client: HttpClient
 ) {
     companion object {
-        //        private const val BASE_URL = "https://heartsync.com/api"
-        private const val BASE_URL = "http://localhost:8000/api"
+        private const val BASE_URL = BuildConfig.BASE_URL
 
         private const val ROOM_CREATE = "$BASE_URL/rooms/"
         private const val ROOM_INFO = "$BASE_URL/rooms/{roomId}/"

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -34,9 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.shinythinking.applepulser_android.domain.model.Player
 import com.shinythinking.applepulser_android.domain.model.PlayerResult
-import com.shinythinking.applepulser_android.domain.model.PlayerStatus
 import com.shinythinking.applepulser_android.domain.model.PlayerType
 import com.shinythinking.applepulser_android.presentation.base.component.APBackground
 import com.shinythinking.applepulser_android.presentation.base.component.APLongButton
@@ -245,27 +244,6 @@ fun getPlayerColor(type: PlayerType): Color {
 @Preview(showBackground = true, backgroundColor = 0xFF1E1E1E)
 @Composable
 fun RecordScreenPreview() {
-    val player1 = Player(
-        id = "p1",
-        name = "홍사인",
-        colorType = PlayerType.RED,
-        status = PlayerStatus.FINISHED
-    )
-
-    val player2 = Player(
-        id = "p2",
-        name = "한예준",
-        colorType = PlayerType.YELLOW,
-        status = PlayerStatus.FINISHED
-    )
-
-    val player3 = Player(
-        id = "p3",
-        name = "신바다",
-        colorType = PlayerType.GREEN,
-        status = PlayerStatus.FINISHED
-    )
-
     val dummyResults = listOf(
         PlayerResult(
             rank = 1,
