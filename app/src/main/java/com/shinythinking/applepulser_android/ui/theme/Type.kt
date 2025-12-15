@@ -50,7 +50,7 @@ val Typography = Typography(
     ),
     labelMedium = TextStyle(
         fontFamily = inter,
-        fontWeight = FontWeight.Thin,
+        fontWeight = FontWeight.Normal,
         fontSize = 24.sp,
         lineHeight = 32.sp,
     ),
