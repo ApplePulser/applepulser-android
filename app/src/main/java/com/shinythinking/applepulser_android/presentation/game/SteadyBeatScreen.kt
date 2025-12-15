@@ -216,7 +216,7 @@ private fun CurrentStatusSection(
             )
 
             InfoCard(
-                title = "Deviation from\nTarget BPM (midpoint)",
+                title = "Deviation",
                 value = if (deviation >= 0) "+$deviation" else deviation.toString(),
                 modifier = Modifier.weight(1f)
             )
