@@ -139,9 +139,12 @@ class SteadyBeatViewmodel @Inject constructor(
     }
 
     private fun handleHeartbeatUpdate(event: GameEvent.HeartbeatUpdate) = intent {
+        val rank = event.players.first { it.id == playerId }.rank ?: 0
+
         val currentState = state as? SteadyBeatContract.State.Playing ?: return@intent
         val currentStatus = currentState.gameStatus.copy(
-            players = event.players
+            players = event.players,
+            currentRank = rank
         )
 
         reduce {
